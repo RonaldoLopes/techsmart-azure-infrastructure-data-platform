@@ -1,163 +1,116 @@
-# TechSmart Data Platform — Azure + Databricks
 
-Plataforma de dados completa construída no Azure e Databricks para transformar dados de múltiplas fontes em insights de negócio.
+## 🔐 Segurança básica
 
-## 🎯 O Projeto TechSmart
-
-TechSmart é uma varejista de acessórios eletrônicos com dados espalhados em três sistemas:
-- **ERP**: arquivos CSV com transações diárias
-- **API de clima**: dados de temperatura por região
-- **Sensores IoT**: leitura contínua de estoque via Event Hubs
-
-**Objetivo**: consolidar esses dados em um lakehouse para responder perguntas como "qual foi a receita de ontem por região?" em segundos, não em uma semana.
-
-## 🏗️ Arquitetura
-
-```
-Fontes de dados
-      ↓
-    [LANDING] — arquivo cru, como chegou
-      ↓
-    [BRONZE] — Delta Lake fiel à origem + metadados
-      ↓
-    [SILVER] — limpo, tipado, cruzado, quarentena
-      ↓
-    [GOLD] — star schema, KPIs prontos para negócio
-      ↓
-Consumo: Power BI | Databricks SQL | Azure OpenAI
-```
-
-## 🛠️ Stack Tecnológico
-
-| Camada | Tecnologia |
-| --- | --- |
-| Orquestração | Azure Data Factory + Databricks Workflows |
-| Armazenamento | Azure Storage (ADLS Gen2 com HNS) |
-| Processamento | Apache Spark + Databricks |
-| Catálogo | Unity Catalog (governança, permissões, linhagem) |
-| Ingestão | Auto Loader, Event Hubs, Azure SQL |
-| Transformação | PySpark, Delta Lake, SQL |
-| ML/IA | MLflow, Azure OpenAI |
-| Consumo | Power BI, Databricks SQL, Synapse |
-| Segurança | RBAC, máscaras, filtros de linha, LGPD |
-| CI/CD | GitHub Actions, Asset Bundles |
-
-## 📁 Estrutura de Pasta
-
-```
-techsmart-azure-infrastructure/
-├── main.tf                  # Infraestrutura base (RG, Storage)
-├── .gitignore              # Arquivos ignorados
-└── README.md               # Este arquivo
-```
-
-## 🚀 Como começar
-
-### Pré-requisitos
-- Terraform instalado
-- Azure CLI instalado
-- Conta Azure ativa
-- GitHub conectado ao Azure
-
-### 1. Clone e configure
+1. **Nunca commita `terraform.tfstate`** — contém senhas
 ```bash
-git clone https://github.com/seu-usuario/techsmart-azure-infrastructure.git
-cd techsmart-azure-infrastructure
-az login
+   # Já está no .gitignore
+   git check-ignore terraform.tfstate
 ```
 
-### 2. Deploy da infraestrutura
+2. **Azure Key Vault** — guardará segredos depois (Módulo 6)
 ```bash
-terraform init
-terraform plan
-terraform apply
+   terraform output openai_key
+   # Saída: [redacted]
 ```
 
-### 3. Próximos passos
-- Criar Databricks Workspace (Premium tier)
-- Configurar Unity Catalog
-- Provisionar Event Hubs
-- Configurar Data Factory pipelines
+3. **RBAC do Azure** — seu usuário é Owner por padrão
+```bash
+   az role assignment list --scope /subscriptions/SUB_ID
+```
 
-## 📊 Camadas de Dados
+## 🆘 Troubleshooting
 
-### Landing
-- Armazenamento temporário
-- Arquivos como chegam das fontes
-- Sem transformação, sem lógica
+### `InvalidSubscriptionId: ... is malformed`
+Você deixou um placeholder. Use:
+```bash
+az account show --query id -o tsv
+```
+E copie o valor real em `main.tf`.
 
-### Bronze
-- Primeira transformação no Delta Lake
-- Adiciona metadados: `_ingest_ts`, `_source_file`
-- Cumpre contrato com origem
+### `Insufficient permissions`
+Seu usuário precisa ser **Owner** ou **Contributor** na subscription. Confirme:
+```bash
+az role assignment list --query "[?principalName=='seu-email@exemplo.com']"
+```
 
-### Silver
-- Limpeza: tipagem, deduplicação, tratamento de nulos
-- Integração: joins entre fontes
-- Quarentena: linhas reprovadas com motivo
+### `The subscription could not be found`
+Listar todas:
+```bash
+az account list --query "[].{name:name, id:id}"
+```
+E trocar com:
+```bash
+az account set --subscription "ID_OU_NOME"
+```
 
-### Gold
-- Star schema pronto para analytics
-- Fatos e dimensões
-- Agregações pré-calculadas
-- Pronto para Power BI, BI tools, API
+### Workspace criou, mas não consigo entrar
+Pode levar 1-2 minutos para ficar pronto. Aguarde um pouco, depois:
+```bash
+terraform output workspace_url
+```
+E abra no navegador. Você será redirecionado para login.
 
-## 🔒 Governança
+## ✅ Validações
 
-- **Unity Catalog**: catálogo centralizado, permissões granulares
-- **RBAC no Azure**: acesso a dados baseado em role
-- **Máscaras**: PII (CPF, email) mascarado por padrão
-- **Filtros de linha**: usuários veem só dados relevantes
-- **LGPD**: pseudonimização com hash+sal, right-to-be-forgotten com DELETE+VACUUM
+Confirmar que tudo funcionou:
 
-## 💰 Custos (estimativa mensal)
+```bash
+# Listar recursos criados
+az resource list -g rg-techsmart-dev --query "[].{name:name, type:type}"
 
-| Recurso | Custo |
-| --- | --- |
-| Storage Account (ADLS Gen2, 100 GB) | ~$2-3 |
-| Databricks (Dev, 10 DBU/dia) | ~$50-80 |
-| Data Factory (1 pipeline/dia) | ~$5-10 |
-| Event Hubs (básico) | ~$10-15 |
-| **Total** | **~$70-110** |
+# Confirmar que o workspace está pronto
+az databricks workspace show -g rg-techsmart-dev -n dbw-techsmart-dev
+```
 
-*Valores ilustrativos. Varia por uso real.*
+## 🗑️ Destruir (quando não precisar mais)
 
-## 📚 Documentação Completa
+```bash
+terraform destroy
+```
 
-A apostila completa **"Plataforma de Dados Azure + Databricks"** contém:
-- 23 módulos de conceito e prática
-- 108 páginas com laboratórios
-- Seção de erros comuns e soluções
-- Glossário de termos
-- Checklist de aprendizado
+Digite `yes` e aguarde. Tudo será removido (exceto alguns backups de armazenamento que levam 7 dias).
 
-## 🎓 Roteiro de Aprendizado
+⚠️ **Isso é irreversível. Confirme que você quer realmente.**
 
-1. **Fundação Azure** (Módulos 1-2)
-   - Conceitos de lakehouse
-   - Storage Account, Key Vault, Budget
+## 📚 Próximos passos
 
-2. **Databricks a Fundo** (Módulos 3-13)
-   - Spark, Delta Lake, Unity Catalog
-   - Clustering, Warehouses, Streaming
-   - MLflow, Auto Loader
+1. ✅ **Você está aqui** — infraestrutura do Azure criada
+2. **Módulo 3** — conhecer o workspace Databricks
+3. **Módulo 4-6** — compute, Spark, Delta Lake
+4. **Módulo 7+** — carregar dados reais
 
-3. **Projeto End-to-End** (Módulos 14-23)
-   - Data Factory ↔ Databricks
-   - Camadas Bronze, Silver, Gold
-   - Azure OpenAI, Power BI, Workflows
-   - LGPD, Segurança, Custos
+Abra a apostila PDF (113 páginas, 23 módulos) para o passo a passo completo.
 
-## 🤝 Contribuições
+## 📖 Referência rápida (Terraform)
 
-Sugestões e correções são bem-vindas. Abra uma issue ou PR.
+```bash
+terraform init           # inicializa (rode uma vez)
+terraform fmt            # formata bonito
+terraform validate       # valida sintaxe
+terraform plan           # mostra o que vai mudar
+terraform apply          # faz de verdade
+terraform apply -auto-approve   # faz sem perguntar
+terraform destroy        # apaga tudo
+terraform output         # vê as saídas
+terraform state list     # lista recursos
+terraform state show ENDERECO   # detalhe de um recurso
+```
+
+## 🤝 Contribuindo
+
+Encontrou erro na apostila? Sugestão de melhoria?
+
+1. Fork o repositório
+2. Crie uma branch `feature/seu-nome`
+3. Commit com mensagem clara
+4. Pull Request
 
 ## 📝 Licença
 
-MIT
+Este projeto é code+docs de aprendizado. Livre para usar, modificar e compartilhar com atribuição.
 
 ---
 
-**Última atualização**: Agosto 2026  
-**Status**: Em desenvolvimento  
-**Próximos**: Key Vault, Databricks Workspace, GitHub Actions
+**Versão:** 1.0  
+**Última atualização:** Agosto 2026  
+**Próxima etapa no README:** Data Factory (Módulo 16), Event Hubs (Módulo 17), OpenAI (Módulo 18)
