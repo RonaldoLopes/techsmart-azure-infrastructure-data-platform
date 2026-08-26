@@ -14,5 +14,6 @@
 			"newClusterInitScripts": [],
 			"dataSecurityMode": "SINGLE_USER"
 		}
-	}
+	},
+	"single_user_name": "760a38e7-c9d0-4b3a-92ca-9f85172ae4b5"
 }
