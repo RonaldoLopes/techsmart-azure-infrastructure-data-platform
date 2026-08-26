@@ -1,0 +1,10 @@
+{
+	"name": "LS_ADLS_TechSmart",
+	"properties": {
+		"annotations": [],
+		"type": "AzureBlobFS",
+		"typeProperties": {
+			"url": "https://sttechsmarteebf.dfs.core.windows.net/"
+		}
+	}
+}
