@@ -1,0 +1,18 @@
+{
+	"name": "DS_API_Clima",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_API_Clima",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "HttpServerLocation",
+				"relativeUrl": "forecast?latitude=-23.55&longitude=-46.63&current=temperature_2m,relative_humidity_2m,precipitation&timezone=America/Sao_Paulo"
+			}
+		},
+		"schema": {}
+	}
+}
