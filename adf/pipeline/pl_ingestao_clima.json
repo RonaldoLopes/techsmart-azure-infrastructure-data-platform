@@ -48,6 +48,26 @@
 						"type": "DatasetReference"
 					}
 				]
+			},
+			{
+				"name": "Ingerir_Clima_Bronze",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Repos/ronaldorclopes@gmail.com/techsmart-data-platform/01_bronze/02_bronze_clima"
+				},
+				"linkedServiceName": {
+					"referenceName": "AzureDatabricks",
+					"type": "LinkedServiceReference"
+				}
 			}
 		],
 		"annotations": []
