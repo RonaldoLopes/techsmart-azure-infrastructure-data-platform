@@ -93,3 +93,18 @@ resource "azurerm_consumption_budget_resource_group" "budget" {
   }
 }
 
+resource "azurerm_data_factory" "adf" {
+  name = "adf-${var.prefixo}-dev"
+  resource_group_name = azurerm_resource_group.rg.name
+  location = azurerm_resource_group.rg.location
+  identity {
+    type = "SystemAssigned"
+  }
+  tags = {
+    projeto = var.prefixo
+    ambiente = "dev"
+  }
+}
+output "data_factory_name" {
+  value = azurerm_data_factory.adf.name
+}
