@@ -1,0 +1,15 @@
+{
+	"name": "adf-techsmart-dev",
+	"properties": {
+		"trustModeClaimForMi": {
+			"value": "Disabled",
+			"editable": true
+		}
+	},
+	"location": "westus2",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "760a38e7-c9d0-4b3a-92ca-9f85172ae4b5",
+		"tenantId": "0be73755-2dd8-4b96-87c3-8d7720ef77ea"
+	}
+}
