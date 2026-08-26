@@ -8,11 +8,7 @@
 			"authentication": "MSI",
 			"workspaceResourceId": "/subscriptions/3ac461fc-48b9-4e81-a7a9-101fd53ef814/resourceGroups/rg-techsmart-dev/providers/Microsoft.Databricks/workspaces/dbw-techsmart-dev",
 			"newClusterNodeType": "Standard_D4pds_v6",
-			"newClusterNumOfWorker": "1",
-			"newClusterSparkConf": {
-				"spark.databricks.cluster.profile": "singleNode",
-				"spark.master": "local[*]"
-			},
+			"newClusterNumOfWorker": "0",
 			"newClusterVersion": "15.4.x-scala2.12",
 			"clusterOption": "Fixed",
 			"newClusterInitScripts": [],
