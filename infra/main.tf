@@ -108,3 +108,9 @@ resource "azurerm_data_factory" "adf" {
 output "data_factory_name" {
   value = azurerm_data_factory.adf.name
 }
+
+resource "azurerm_role_assignment" "adf_databricks_contributor" {
+  scope                = azurerm_databricks_workspace.dbw.id
+  role_definition_name = "Contributor"
+  principal_id         = azurerm_data_factory.adf.identity[0].principal_id
+}
