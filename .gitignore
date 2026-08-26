@@ -1,5 +1,16 @@
-.terraform/
-.terraform.lock.hcl
+# Terraform
+**/.terraform/*
 *.tfstate
 *.tfstate.*
+*.tfvars
+crash.log
+override.tf
+.terraformrc
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.ipynb_checkpoints/
+# Sistema
 .DS_Store
+Thumbs.db
