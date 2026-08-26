@@ -1,0 +1,20 @@
+{
+	"name": "DS_Landing_Clima",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_ADLS_TechSmart",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "clima_@{formatDateTime(utcnow(),'yyyy-MM-dd')}.json",
+				"folderPath": "clima",
+				"fileSystem": "raw"
+			}
+		},
+		"schema": {}
+	}
+}
