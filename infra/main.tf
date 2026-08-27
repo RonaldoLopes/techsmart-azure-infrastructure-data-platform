@@ -112,5 +112,65 @@ output "data_factory_name" {
 resource "azurerm_role_assignment" "adf_databricks_contributor" {
   scope                = azurerm_databricks_workspace.dbw.id
   role_definition_name = "Contributor"
-  principal_id         = azurerm_data_factory.adf.identity[0].principal_id
+  principal_id         = "760a38e7-c9d0-4b3a-92ca-9f85172ae4b5"  # ID correto do ADF
 }
+resource "azurerm_role_assignment" "adf_storage_blob_contributor" {
+  scope                = azurerm_storage_account.storage.id
+  role_definition_name = "Storage Blob Data Contributor"
+  principal_id          = "760a38e7-c9d0-4b3a-92ca-9f85172ae4b5"
+}
+#kafka
+resource "azurerm_eventhub_namespace" "ehns" {
+  name                = "ehns-${var.prefixo}-dev"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  sku                 = "Standard" # Standard e o minimo para Kafka
+  capacity            = 1
+}
+resource "azurerm_eventhub" "estoque" {
+  name                = "eh-estoque"
+  namespace_name      = azurerm_eventhub_namespace.ehns.name
+  resource_group_name = azurerm_resource_group.rg.name
+  partition_count     = 4
+  message_retention   = 7
+}
+resource "azurerm_eventhub_authorization_rule" "app" {
+  name = "app-techsmart"
+  namespace_name      = azurerm_eventhub_namespace.ehns.name
+  eventhub_name       = azurerm_eventhub.estoque.name
+  resource_group_name = azurerm_resource_group.rg.name
+  listen              = true
+  send                = true
+  manage              = false
+}
+output "eventhub_connection_string" {
+  value     = azurerm_eventhub_authorization_rule.app.primary_connection_string
+  sensitive = true
+}
+#openai
+# TODO: Uncomment after quota access is approved
+# resource "azurerm_cognitive_account" "openai" {
+#   name                = "oai-${var.prefixo}-dev"
+#   resource_group_name = azurerm_resource_group.rg.name
+#   location = azurerm_resource_group.rg.location
+#   kind = "OpenAI"
+#   sku_name = "S0"
+#
+#   tags = { projeto = var.prefixo, ambiente = "dev" }
+# }
+#
+# resource "azurerm_cognitive_deployment" "gpt" {
+#   name                 = "gpt-4o-mini"
+#   cognitive_account_id = azurerm_cognitive_account.openai.id
+#
+#   model {
+#     format  = "OpenAI"
+#     name    = "gpt-4o-mini"
+#     version = "2024-07-18"
+#   }
+#
+#   scale {
+#     type     = "Standard"
+#     capacity = 10 # milhares de tokens por minuto
+#   }
+# }
